@@ -6,7 +6,7 @@
   const marginLeft = 120; 
 
   const dataset = await FileAttachment("followup-2@1.csv").csv(); 
-  const toParseColor = await FileAttachment("colors.csv").csv(); 
+  const toParseColor = await FileAttachment("colors@1.csv").csv(); 
 
   const colors = toParseColor.map(d => ({
     key: d.key,
@@ -15,6 +15,7 @@
     y_modify: +d.y_modify,  
     stroke: d.stroke,
     symbol:d.symbol,
+    symbol_size:+d.symbol_size,
     strokeWidth: +d['stroke-width']
   }));
 
@@ -89,6 +90,11 @@
   const symbols = d3.scaleOrdinal()
     .domain(colors.map(c => c.key))
     .range(colors.map(c => c.symbol));
+    
+  const symbol_size = d3.scaleOrdinal()
+    .domain(colors.map(c => c.key))
+    .range(colors.map(c => c.symbol_size));
+ 
  
   svg.append("g")
     .attr("transform", `translate(0,${height - marginBottom})`)
@@ -119,7 +125,8 @@ elements
 elements
   .append("text")
   .attr("x", d => x(d.start))
-  .attr("y", d => y(d.name) + y.bandwidth() / 2 + y_modified(d.type))  
+  .attr("y", d => y(d.name) + y.bandwidth() / 2 + y_modified(d.type)) 
+   .style("font-size",d=>symbol_size(d.type))
   .text(d => symbols(d.type)); 
 
 
