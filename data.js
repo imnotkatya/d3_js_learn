@@ -1,5 +1,4 @@
-
-  const width = 600;
+ const width = 600;
   const height = 800;
   const marginTop = 30;
   const marginRight = 30;
@@ -149,7 +148,7 @@ elements.filter(d => d.type === "vemu" || d.type === "followUp" || d.type === "c
         case "cfdna":
           return `${xPos},${yPos + size} ${xPos - size},${yPos - size} ${xPos + size},${yPos - size}`;
         case "relapse":
-           return `${xPos},${yPos + size} ${xPos - size},${yPos - size} ${xPos + size},${yPos - size}`;
+           return `${xPos},${yPos - size} ${xPos + size},${yPos} ${xPos},${yPos + size} ${xPos - size},${yPos}`;
         case "mds":
           return `${xPos},${yPos - size} ${xPos + size},${yPos} ${xPos},${yPos + size} ${xPos - size},${yPos}`;
         case "arrow":
