@@ -8,7 +8,7 @@
 
 const dataset = await FileAttachment("followup@17.json").json();
 
-  const keys=["followUp","vemu","vemu reintroduction","grey"];
+  const keys=["followUp","vemu","vemu_r","chemo"];
   const toParseColor = await FileAttachment("color.csv").csv(); 
 
   const colors = toParseColor.map(d => ({
@@ -57,19 +57,19 @@ const dataset = await FileAttachment("followup@17.json").json();
      .attr('y', (d, i) => y(d.name)) 
       .attr('x', d=>x(d.start))
     .attr('height', y.bandwidth()) 
-      .attr('width', d=>x(d.end)-marginLeft)
+       .attr("width", d => Math.max(0, x(d.end) - x(d.start)));
 
 svg.selectAll("legend_rect")
   .data(keys)
   .enter()
   .append("rect")
     .attr("x", 400)
-    .attr("y", function(d,i){ return 390 + i*25}) 
+    .attr("y", (d,i)=> 390 + i*25) 
     .attr("width", 20)
     .attr("height", 20)
   .attr("stroke","black")
-   .style("fill", function(d){ return color(d)})
-    .style("fill", function(d){ return color(d)})
+   .style("fill", d=> color(d))
+    .style("fill",d=> color(d))
 
 
 svg.selectAll("mylabels")
@@ -77,14 +77,10 @@ svg.selectAll("mylabels")
   .enter()
   .append("text")
     .attr("x", 430)
-    .attr("y", function(d,i){ return 405 + i*25}) 
-    .style("fill", function(d){ return color(d)})
-    .text(function(d){ return d})
+    .attr("y", (d,i)=> 405 + i*25) 
+    .style("fill", d=>  color(d))
+    .text(d=>  d)
 
-
-
-
- 
 
 
   
