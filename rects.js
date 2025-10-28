@@ -1,4 +1,4 @@
-const width = 600;
+ const width = 600;
   const height = 800;
   const marginTop = 30;
   const marginRight = 30;
@@ -122,17 +122,33 @@ elements
   .attr("y", d => y(d.name) + y.bandwidth() / 2 + y_modified(d.type))  
   .text(d => symbols(d.type)); 
 
-  svg.selectAll("legend_rect")
-    .data(colors.map(c => c.key))
-    .enter()
-    .append("rect")
-    .attr("x", width - 100)
-    .attr("y", (d, i) => height/2 + 90 + i * 25) 
-    .attr("width", 20)
-    .attr("height", 20)
-    .attr("stroke", "black")
-    .style("fill", d => color(d));
 
+
+colors.map(c => c.key).forEach((key, i) => {
+    const symbol = symbols(key); 
+    if (symbol) {
+        svg.append("text")
+            .attr("x", width - 90)
+            .attr("y",  height/2 + 105 + i * 25)
+            .attr("text-anchor", "middle")
+            .attr("dy", "0.35em")
+            .style("font-size", "16px")
+            .text(symbol)
+            .style("fill", color(key))
+            .attr("stroke", "black")
+            .attr("stroke-width", 0.5);
+    } else {
+        svg.append("rect")
+            .attr("class", "legend_rect")
+            .attr("x", width - 100)
+            .attr("y",  height/2 + 90 + i * 25 )
+            .attr("width", 20)
+            .attr("height", 20)
+            .attr("stroke", "black")
+            .style("fill", color(key));
+    }
+});
+  
   svg.selectAll("legend_labels")
     .data(colors.map(c => c.key))
     .enter()
