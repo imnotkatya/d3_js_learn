@@ -35,7 +35,7 @@ function convertWideToLong(dataset) {
 
 
   const dataset = await FileAttachment("followup-2@1.csv").csv(); 
-  const toParseColor = await FileAttachment("colors@1.csv").csv(); 
+  const toParseColor = await FileAttachment("styles.csv").csv(); 
 
   const colors = toParseColor.map(d => ({
     key: d.key,
