@@ -6,32 +6,49 @@
   const marginLeft = 120; 
 
 function convertWideToLong(dataset) {
-  const result = [];
+  const result =  [];
   
   dataset.forEach(patient => {
-    const events = [];
+    const patientVisualData = [];
+ 
     Object.entries(patient).forEach(([field, value]) => {
       if (field.endsWith('___start')) {
         const type = field.replace('___start', '');
         const startValue = +value;
         const endField = field.replace('___start', '___end');
-        const endValue = patient[endField] ?  +patient[endField] : startValue;
+        const endValue = patient[endField] ? +patient[endField] : startValue;
         
-        events.push({
+        patientVisualData.push({
           name: patient.name,
           ro: patient.ro,
           type: type,
           start: startValue,
           end: endValue,
+        
         });
       }
+      else if (field.endsWith('___event')) {
+        const type = field.replace('___event', '');
+        const eventValue = +value;
+        
+        patientVisualData.push({
+          name: patient.name,
+          ro: patient.ro,
+          type: type,
+          start: eventValue,
+          end: eventValue,
+        });
+      }
+     
     });
     
-    result.push(...events);
+    result.push(...patientVisualData);
+   
   });
   
   return result;
 }
+
 
 
   const dataset = await FileAttachment("followup-2@1.csv").csv(); 
@@ -59,7 +76,7 @@ function convertWideToLong(dataset) {
     direction: +d.direction,
   }));
 
-const dataset_Long = await FileAttachment("followUp_long-2@2.csv").csv();
+const dataset_Long = await FileAttachment("followUp_long_excel@2.csv").csv();
 const parsedDataset_long = convertWideToLong(dataset_Long);
 console.log("Structured:", parsedDataset_long);
   
