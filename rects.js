@@ -1,9 +1,38 @@
- const width = 600;
+  const width = 600;
   const height = 800;
   const marginTop = 30;
   const marginRight = 30;
   const marginBottom = 30;
   const marginLeft = 120; 
+
+function convertWideToLong(dataset) {
+  const result = [];
+  
+  dataset.forEach(patient => {
+    const events = [];
+    Object.entries(patient).forEach(([field, value]) => {
+      if (field.endsWith('___start')) {
+        const type = field.replace('___start', '');
+        const startValue = +value;
+        const endField = field.replace('___start', '___end');
+        const endValue = patient[endField] ?  +patient[endField] : startValue;
+        
+        events.push({
+          name: patient.name,
+          ro: patient.ro,
+          type: type,
+          start: startValue,
+          end: endValue,
+        });
+      }
+    });
+    
+    result.push(...events);
+  });
+  
+  return result;
+}
+
 
   const dataset = await FileAttachment("followup-2@1.csv").csv(); 
   const toParseColor = await FileAttachment("colors@1.csv").csv(); 
@@ -30,7 +59,11 @@
     direction: +d.direction,
   }));
 
-  const datagrouped = d3.group(parsedDataset, (d) => d.name);
+const dataset_Long = await FileAttachment("followUp_long-2@2.csv").csv();
+const parsedDataset_long = convertWideToLong(dataset_Long);
+console.log("Structured:", parsedDataset_long);
+  
+  const datagrouped = d3.group(parsedDataset_long, (d) => d.name);
   const sortedData = Array.from(datagrouped)
     .sort((a, b) => {
       const aAvg = d3.max(a[1].map(d => d.end));
