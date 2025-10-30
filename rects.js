@@ -6,46 +6,52 @@
   const marginLeft = 120; 
 
 function convertWideToLong(dataset) {
-  const result =  [];
+  const result =
+    {
+      events:[],
+      rectangles:[]
+    };
   
   dataset.forEach(patient => {
-    const patientVisualData = [];
- 
+
+  const patientRectangles = [];
+  const patientEvents = [];
+    
     Object.entries(patient).forEach(([field, value]) => {
-      if (field.endsWith('___start')) {
+      
+      if (field.endsWith('___start')) 
+      {
         const type = field.replace('___start', '');
         const startValue = +value;
         const endField = field.replace('___start', '___end');
         const endValue = patient[endField] ? +patient[endField] : startValue;
         
-        patientVisualData.push({
+        patientRectangles.push({
           name: patient.name,
           ro: patient.ro,
           type: type,
           start: startValue,
-          end: endValue,
-        
-        });
+          end: endValue, });
       }
-      else if (field.endsWith('___event')) {
+      else if (field.endsWith('___event')) 
+      {
         const type = field.replace('___event', '');
         const eventValue = +value;
         
-        patientVisualData.push({
+        patientEvents.push({
           name: patient.name,
           ro: patient.ro,
           type: type,
           start: eventValue,
-          end: eventValue,
-        });
+          end: eventValue, });
       }
      
     });
     
-    result.push(...patientVisualData);
-   
+    result.rectangles.push(...patientRectangles);
+    result.events.push(...patientEvents);
   });
-  
+ 
   return result;
 }
 
@@ -76,11 +82,11 @@ function convertWideToLong(dataset) {
     direction: +d.direction,
   }));
 
-const dataset_Long = await FileAttachment("followUp_long_excel@2.csv").csv();
-const parsedDataset_long = convertWideToLong(dataset_Long);
-console.log("Structured:", parsedDataset_long);
+  const dataset_Long = await FileAttachment("followUp_long_excel@2.csv").csv();
+  const parsedDataset_long = convertWideToLong(dataset_Long);
+// console.log("Structured:", parsedDataset_long);
   
-  const datagrouped = d3.group(parsedDataset_long, (d) => d.name);
+  const datagrouped = d3.group([...parsedDataset_long.rectangles, ...parsedDataset_long.events], (d) => d.name);
   const sortedData = Array.from(datagrouped)
     .sort((a, b) => {
       const aAvg = d3.max(a[1].map(d => d.end));
@@ -88,7 +94,7 @@ console.log("Structured:", parsedDataset_long);
       return aAvg - bAvg;
     })
     .flatMap(([id, types]) => types);
-
+    console.log("sorted:", sortedData);
   const svg = d3.create("svg")
     .attr("width", width)
     .attr('height', height);
@@ -99,7 +105,6 @@ console.log("Structured:", parsedDataset_long);
     .paddingInner(0.2)
     .range([height - marginBottom, marginTop]);
 
-  
   svg.selectAll("column")
     .data(uniqueNames)
     .enter()
@@ -153,29 +158,31 @@ console.log("Structured:", parsedDataset_long);
   svg.append("g")
     .attr("transform", `translate(${marginLeft},0)`)
     .call(d3.axisLeft(y));
-
+ console.log(parsedDataset_long);
   
-  const elements = svg.selectAll("data")
-    .data(sortedData)
+  const rects = svg.selectAll("rects")
+    .data(parsedDataset_long.rectangles)
     .enter()
     .append("g")
     .attr("stroke-dasharray", d => stroke_dash(d.type))
     .attr("fill", d => color(d.type))
     .attr("stroke", d => stroke_color(d.type))
     .attr("opacity", d => d.start >= 0 ? 1 : 0)
-    .attr("stroke-width", d => stroke_width(d.type));
- 
-elements
+    .attr("stroke-width", d => stroke_width(d.type))
     .append("rect")
     .attr("y", d => y(d.name) + y_modified(d.type)) 
     .attr("x", d => x(d.start))
     .attr("height", y.bandwidth()) 
     .attr("width", d => Math.max(0, x(d.end) - x(d.start)));
  
-elements
+const events= svg.selectAll("events")
+  .data(parsedDataset_long.events)
+  .enter()
+  .append("g")
   .append("text")
   .attr("x", d => x(d.start))
   .attr("y", d => y(d.name) + y.bandwidth() / 2 + y_modified(d.type)) 
+     .attr("opacity", d => d.start >= 0 ? 1 : 0)
    .style("font-size",d=>symbol_size(d.type))
   .text(d => symbols(d.type)); 
 
