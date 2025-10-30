@@ -13,11 +13,7 @@ function convertWideToLong(dataset) {
     };
   
   dataset.forEach(patient => {
-
-  const patientRectangles = [];
-  const patientEvents = [];
-    
-    Object.entries(patient).forEach(([field, value]) => {
+  Object.entries(patient).forEach(([field, value]) => {
       
       if (field.endsWith('___start')) 
       {
@@ -26,7 +22,7 @@ function convertWideToLong(dataset) {
         const endField = field.replace('___start', '___end');
         const endValue = patient[endField] ? +patient[endField] : startValue;
         
-        patientRectangles.push({
+        result.rectangles.push({
           name: patient.name,
           ro: patient.ro,
           type: type,
@@ -38,18 +34,15 @@ function convertWideToLong(dataset) {
         const type = field.replace('___event', '');
         const eventValue = +value;
         
-        patientEvents.push({
+        result.events.push({
           name: patient.name,
           ro: patient.ro,
           type: type,
-          start: eventValue,
-          end: eventValue, });
+          event: eventValue, });
       }
-     
     });
-    
-    result.rectangles.push(...patientRectangles);
-    result.events.push(...patientEvents);
+      
+   
   });
  
   return result;
@@ -180,9 +173,9 @@ const events= svg.selectAll("events")
   .enter()
   .append("g")
   .append("text")
-  .attr("x", d => x(d.start))
+  .attr("x", d => x(d.event))
   .attr("y", d => y(d.name) + y.bandwidth() / 2 + y_modified(d.type)) 
-     .attr("opacity", d => d.start >= 0 ? 1 : 0)
+     .attr("opacity", d => d.event >= 0 ? 1 : 0)
    .style("font-size",d=>symbol_size(d.type))
   .text(d => symbols(d.type)); 
 
